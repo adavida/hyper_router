@@ -6,45 +6,31 @@ pub struct RouteConfig {
     controller_name: String,
 }
 
-#[derive(Debug)]
-enum PathElement<'a> {
-    Name(&'a str),
-    Var(&'a str),
-}
-
-impl PathElement<'_> {
-    fn from_str(entry: &str) -> Option<PathElement> {
-        match entry.trim() {
-            "" => None,
-            a if a.starts_with("{") && a.ends_with("}") => {
-                let len = a.len() - 1;
-                Some(PathElement::Var(&a[1..len]))
-            }
-            a => Some(PathElement::Name(a)),
+fn path_part_to_token_tree(entry: &str) -> Option<proc_macro2::TokenTree> {
+    match entry.trim() {
+        "" => None,
+        a if a.starts_with("{") && a.ends_with("}") => {
+            let len = a.len() - 1;
+            Some(proc_macro2::TokenTree::from(quote::format_ident!(
+                "{}",
+                &a[1..len]
+            )))
         }
-    }
-
-    fn to_token_tree(&self) -> proc_macro2::TokenTree {
-        match self {
-            Self::Name(name) => proc_macro2::TokenTree::from(proc_macro2::Literal::string(name)),
-            Self::Var(var) => proc_macro2::TokenTree::from(quote::format_ident!("{var}")),
-        }
+        a => Some(proc_macro2::TokenTree::from(proc_macro2::Literal::string(
+            a,
+        ))),
     }
 }
 
 pub fn make_route(config: &RouteConfig) -> TokenStream {
     let method = format_ident!("{}", &config.method);
 
-    let paths = &config
-        .path
-        .split("/")
-        .filter_map(PathElement::from_str)
-        .collect::<Vec<PathElement>>();
-    let paths = paths.iter().map(|v| v.to_token_tree());
+    let paths = &config.path.split("/").filter_map(path_part_to_token_tree);
     let vars = paths.clone().filter(|v| match v {
         proc_macro2::TokenTree::Ident(_) => true,
         _ => false,
     });
+    let paths = paths.clone();
 
     let path = quote::quote! { [ #(#paths), *]};
     let vars_controller = quote::quote! {#(#vars),*};
