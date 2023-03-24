@@ -1,7 +1,7 @@
 use quote::{__private::TokenStream, format_ident};
 
 pub struct RouteConfig {
-    method: String,
+    method: hyper::Method,
     path: String,
     controller_name: String,
 }
@@ -9,7 +9,7 @@ pub struct RouteConfig {
 fn path_part_to_token_tree(entry: &str) -> Option<proc_macro2::TokenTree> {
     match entry.trim() {
         "" => None,
-        a if a.starts_with("{") && a.ends_with("}") => {
+        a if a.starts_with('{') && a.ends_with('}') => {
             let len = a.len() - 1;
             Some(proc_macro2::TokenTree::from(quote::format_ident!(
                 "{}",
@@ -23,13 +23,12 @@ fn path_part_to_token_tree(entry: &str) -> Option<proc_macro2::TokenTree> {
 }
 
 pub fn make_route(config: &RouteConfig) -> TokenStream {
-    let method = format_ident!("{}", &config.method);
+    let method = format_ident!("{}", &config.method.to_string());
 
-    let paths = &config.path.split("/").filter_map(path_part_to_token_tree);
-    let vars = paths.clone().filter(|v| match v {
-        proc_macro2::TokenTree::Ident(_) => true,
-        _ => false,
-    });
+    let paths = &config.path.split('/').filter_map(path_part_to_token_tree);
+    let vars = paths
+        .clone()
+        .filter(|v| matches!(v, proc_macro2::TokenTree::Ident(_)));
     let paths = paths.clone();
 
     let path = quote::quote! { [ #(#paths), *]};
@@ -57,6 +56,7 @@ pub fn make_route_404() -> TokenStream {
 #[cfg(test)]
 mod test {
     use crate::route::*;
+    use std::str::FromStr;
 
     #[test]
     fn test_simple_404() {
@@ -80,7 +80,7 @@ mod test {
             }
         };
         let config = RouteConfig {
-            method: "GET".to_string(),
+            method: hyper::Method::from_str("GET").unwrap(),
             path: "/path".to_string(),
             controller_name: "path_controller".to_string(),
         };
@@ -96,7 +96,7 @@ mod test {
             }
         };
         let config = RouteConfig {
-            method: "GET".to_string(),
+            method: hyper::Method::from_str("GET").unwrap(),
             path: "/path/{var1}".to_string(),
             controller_name: "path_controller".to_string(),
         };
