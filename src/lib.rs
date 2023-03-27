@@ -1,5 +1,5 @@
+mod paths;
 mod route;
-
 #[cfg(test)]
 mod test {
     #[test]
