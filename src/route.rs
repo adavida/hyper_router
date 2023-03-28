@@ -1,35 +1,19 @@
 use quote::{__private::TokenStream, format_ident};
 
+use crate::paths::Paths;
+
 pub struct RouteConfig {
     method: hyper::Method,
     path: String,
     controller_name: String,
 }
 
-fn path_part_to_token_tree(entry: &str) -> Option<proc_macro2::TokenTree> {
-    match entry.trim() {
-        "" => None,
-        a if a.starts_with('{') && a.ends_with('}') => {
-            let len = a.len() - 1;
-            Some(proc_macro2::TokenTree::from(quote::format_ident!(
-                "{}",
-                &a[1..len]
-            )))
-        }
-        a => Some(proc_macro2::TokenTree::from(proc_macro2::Literal::string(
-            a,
-        ))),
-    }
-}
-
 pub fn make_route(config: &RouteConfig) -> TokenStream {
     let method = format_ident!("{}", &config.method.to_string());
 
-    let paths = &config.path.split('/').filter_map(path_part_to_token_tree);
-    let vars = paths
-        .clone()
-        .filter(|v| matches!(v, proc_macro2::TokenTree::Ident(_)));
-    let paths = paths.clone();
+    let paths_extractor = Paths::new(&config.path);
+
+    let (vars, paths) = paths_extractor.get_data();
 
     let path = quote::quote! { [ #(#paths), *]};
     let vars_controller = quote::quote! {#(#vars),*};
