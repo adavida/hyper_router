@@ -37,9 +37,9 @@ impl PathElement {
     fn new(entry: &str) -> Option<PathElement> {
         match entry.trim() {
             "" => None,
-            a if a.starts_with("{") && a.ends_with("}") => {
+            a if a.starts_with('{') && a.ends_with('}') => {
                 let len = a.len() - 1;
-                Some(PathElement::Var((&a[1..len]).to_string()))
+                Some(PathElement::Var((a[1..len]).to_string()))
             }
             a => Some(PathElement::Const(a.to_string())),
         }
@@ -48,7 +48,7 @@ impl PathElement {
     fn to_token_tree(&self) -> proc_macro2::TokenTree {
         match &self {
             PathElement::Const(str) => {
-                proc_macro2::TokenTree::from(proc_macro2::Literal::string(&str))
+                proc_macro2::TokenTree::from(proc_macro2::Literal::string(str))
             }
             PathElement::Var(str) => proc_macro2::TokenTree::from(quote::format_ident!("{}", &str)),
         }
