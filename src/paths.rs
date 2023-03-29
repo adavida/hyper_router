@@ -60,16 +60,21 @@ mod test {
     use crate::paths::*;
 
     #[test]
-    fn base_test() {
-        let result = Paths::new("/main/{var}/in/{var2}");
+    fn result() {
+        let px = Paths::new("/main/{var1}/in/{var2}");
+        let (vars, paths) = px.get_data();
         assert_eq!(
-            result,
-            Paths(vec!(
-                PathElement::Const("main".to_string()),
-                PathElement::Var("var".to_string()),
-                PathElement::Const("in".to_string()),
-                PathElement::Var("var2".to_string()),
-            )),
+            vars.map(|x| x.to_string()).collect::<Vec<String>>(),
+            vec!["var1".to_string(), "var2".to_string()]
+        );
+        assert_eq!(
+            paths.map(|v| v.to_string()).collect::<Vec<String>>(),
+            vec![
+                "\"main\"".to_string(),
+                "var1".to_string(),
+                "\"in\"".to_string(),
+                "var2".to_string(),
+            ]
         );
     }
 }
