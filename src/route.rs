@@ -3,9 +3,9 @@ use quote::{__private::TokenStream, format_ident};
 use crate::paths::Paths;
 
 pub struct RouteConfig {
-    method: hyper::Method,
-    path: String,
-    controller_name: String,
+    pub(crate) method: hyper::Method,
+    pub(crate) path: String,
+    pub(crate) controller_name: String,
 }
 
 pub fn make_route(config: &RouteConfig) -> TokenStream {
