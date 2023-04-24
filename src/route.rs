@@ -1,14 +1,9 @@
 use quote::{__private::TokenStream, format_ident};
 
+use crate::config::RouteConfig;
 use crate::paths::Paths;
 
-pub struct RouteConfig {
-    pub(crate) method: hyper::Method,
-    pub(crate) path: String,
-    pub(crate) controller_name: String,
-}
-
-pub fn make_route(config: &RouteConfig) -> TokenStream {
+pub(crate) fn make_route(config: &RouteConfig) -> TokenStream {
     let method = format_ident!("{}", &config.method.to_string());
 
     let paths_extractor = Paths::new(&config.path);
@@ -39,7 +34,7 @@ pub fn make_route_404() -> TokenStream {
 
 #[cfg(test)]
 mod test {
-    use crate::route::*;
+    use super::*;
     use std::str::FromStr;
 
     #[test]

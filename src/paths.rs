@@ -57,7 +57,7 @@ impl PathElement {
 
 #[cfg(test)]
 mod test {
-    use crate::paths::*;
+    use super::*;
 
     #[test]
     fn result() {

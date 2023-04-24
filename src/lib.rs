@@ -1,18 +1,20 @@
-use proc_macro::TokenStream;
-
-use crate::route::make_route;
-
+mod config;
 mod paths;
 mod route;
 
+use crate::config::{Config, RouteConfig};
+use crate::route::make_route;
+use proc_macro::TokenStream;
+
 #[proc_macro]
 pub fn generate_router(_item: TokenStream) -> TokenStream {
-    TokenStream::from(generate_router_fn(vec![]))
+    let config = Config::from_yaml("");
+    TokenStream::from(generate_router_fn(config.paths))
 }
 
-fn generate_router_fn(l: Vec<route::RouteConfig>) -> proc_macro2::TokenStream {
+fn generate_router_fn(paths_config: Vec<RouteConfig>) -> proc_macro2::TokenStream {
     let route_404 = route::make_route_404();
-    let elements = l.into_iter().map(|x| make_route(&x));
+    let elements = paths_config.into_iter().map(|x| make_route(&x));
     quote::quote! {
         fn route(req: hyper::Resquest<hyper::Body>)-> Result<hyper::Response<hyper::Body>, hyper::Error>{
             let path = req.uri().path().split('/').collect::<Vec<&str>>();
@@ -27,7 +29,7 @@ fn generate_router_fn(l: Vec<route::RouteConfig>) -> proc_macro2::TokenStream {
 
 #[cfg(test)]
 mod test {
-    use crate::{route::RouteConfig, *};
+    use super::{config::*, *};
 
     #[test]
     fn only_default_404() {

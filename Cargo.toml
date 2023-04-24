@@ -9,8 +9,11 @@ proc-macro = true
 
 [dependencies]
 hyper = { version = "0.14.24", features = ["full"] }
+hyper_serde = "0.13.0"
 proc-macro2 = "1.0.52"
 quote = "1.0.23"
+serde = { version = "1.0.160", features = ["derive"] }
+serde_yaml = "0.9.21"
 
 [target.wasm32-wasi.dependencies]
 hyper_wasi = "0.15.1"
