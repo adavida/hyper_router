@@ -2,6 +2,7 @@ use serde::Deserialize;
 
 #[derive(Deserialize, Debug, PartialEq, Eq)]
 pub(crate) struct Config {
+    #[serde(default = "Vec::new")]
     pub(crate) paths: Vec<RouteConfig>,
 }
 
@@ -51,6 +52,13 @@ paths:
                 },
             ],
         };
+        assert_eq!(expected, result);
+    }
+    #[test]
+    fn deserialize_void_yaml() {
+        let entry = "";
+        let result = Config::from_yaml(entry);
+        let expected = Config { paths: vec![] };
         assert_eq!(expected, result);
     }
 }

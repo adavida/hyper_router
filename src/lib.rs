@@ -16,7 +16,7 @@ fn generate_router_fn(paths_config: Vec<RouteConfig>) -> proc_macro2::TokenStrea
     let route_404 = route::make_route_404();
     let elements = paths_config.into_iter().map(|x| make_route(&x));
     quote::quote! {
-        fn route(req: hyper::Resquest<hyper::Body>)-> Result<hyper::Response<hyper::Body>, hyper::Error>{
+        fn route(req: hyper::Request<hyper::Body>)-> Result<hyper::Response<hyper::Body>, hyper::Error>{
             let path = req.uri().path().split('/').collect::<Vec<&str>>();
             match (req.method(), path.as_slice()) {
                 #(#elements)*
@@ -34,12 +34,12 @@ mod test {
     #[test]
     fn only_default_404() {
         let expeded = quote::quote! {
-            fn route(req: hyper::Resquest<hyper::Body>)-> Result<hyper::Response<hyper::Body>, hyper::Error>{
+            fn route(req: hyper::Request<hyper::Body>)-> Result<hyper::Response<hyper::Body>, hyper::Error>{
                 let path = req.uri().path().split('/').collect::<Vec<&str>>();
                 match (req.method(), path.as_slice()) {
                     _ => {
-                            let mut not_found = Response::default();
-                            *not_found.status_mut() = StatusCode::NOT_FOUND;
+                            let mut not_found = hyper::Response::default();
+                            *not_found.status_mut() = hyper::StatusCode::NOT_FOUND;
                             Ok(not_found)
                     }
                 }
@@ -52,7 +52,7 @@ mod test {
     #[test]
     fn with_root_path() {
         let expeded = quote::quote! {
-            fn route(req: hyper::Resquest<hyper::Body>)-> Result<hyper::Response<hyper::Body>, hyper::Error>{
+            fn route(req: hyper::Request<hyper::Body>)-> Result<hyper::Response<hyper::Body>, hyper::Error>{
                 let path = req.uri().path().split('/').collect::<Vec<&str>>();
                 match (req.method(), path.as_slice()) {
                     (&hyper::Method::GET, [] ) => {
@@ -64,8 +64,8 @@ mod test {
                         Ok(hyper::Response::new(text.into()))
                     }
                     _ => {
-                            let mut not_found = Response::default();
-                            *not_found.status_mut() = StatusCode::NOT_FOUND;
+                            let mut not_found = hyper::Response::default();
+                            *not_found.status_mut() = hyper::StatusCode::NOT_FOUND;
                             Ok(not_found)
                     }
                 }

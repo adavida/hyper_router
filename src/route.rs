@@ -25,8 +25,8 @@ pub(crate) fn make_route(config: &RouteConfig) -> TokenStream {
 pub fn make_route_404() -> TokenStream {
     quote::quote! {
         _ => {
-            let mut not_found = Response::default();
-            *not_found.status_mut() = StatusCode::NOT_FOUND;
+            let mut not_found = hyper::Response::default();
+            *not_found.status_mut() = hyper::StatusCode::NOT_FOUND;
             Ok(not_found)
         }
     }
@@ -41,8 +41,8 @@ mod test {
     fn test_simple_404() {
         let result = quote::quote! {
             _ => {
-                let mut not_found = Response::default();
-                *not_found.status_mut() = StatusCode::NOT_FOUND;
+                let mut not_found = hyper::Response::default();
+                *not_found.status_mut() = hyper::StatusCode::NOT_FOUND;
                 Ok(not_found)
             }
         };
