@@ -1,4 +1,5 @@
 mod config;
+mod entry_config;
 mod paths;
 mod route;
 
@@ -7,8 +8,11 @@ use crate::route::make_route;
 use proc_macro::TokenStream;
 
 #[proc_macro]
-pub fn generate_router(_item: TokenStream) -> TokenStream {
-    let config = Config::from_yaml("");
+pub fn generate_router(input: TokenStream) -> TokenStream {
+    let input_config = entry_config::EntryConfig::extract(proc_macro2::TokenStream::from(input));
+
+    let config = Config::from_yaml(&input_config.filename);
+
     TokenStream::from(generate_router_fn(config.paths))
 }
 
