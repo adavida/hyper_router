@@ -3,7 +3,7 @@ pub struct Paths(Vec<PathElement>);
 
 impl Paths {
     pub fn new(entry: &str) -> Paths {
-        Paths(entry.split('/').filter_map(PathElement::new).collect())
+        Paths(entry.split('/').map(PathElement::new).collect())
     }
 
     pub fn get_data(
@@ -34,14 +34,13 @@ enum PathElement {
 }
 
 impl PathElement {
-    fn new(entry: &str) -> Option<PathElement> {
+    fn new(entry: &str) -> PathElement {
         match entry.trim() {
-            "" => None,
-            a if a.starts_with('{') && a.ends_with('}') => {
-                let len = a.len() - 1;
-                Some(PathElement::Var((a[1..len]).to_string()))
+            element if element.starts_with('{') && element.ends_with('}') => {
+                let len = element.len() - 1;
+                PathElement::Var((element[1..len]).to_string())
             }
-            a => Some(PathElement::Const(a.to_string())),
+            element => PathElement::Const(element.to_string()),
         }
     }
 

@@ -1,0 +1,13 @@
+paths:
+    -
+        method: GET
+        path: /
+        controller_name: hello_world
+    -
+        method: POST
+        path: /
+        controller_name: hello_world
+    -
+        method: GET
+        path: /{var}
+        controller_name: echo
