@@ -11,3 +11,4 @@ paths:
         method: GET
         path: /{var}
         controller_name: echo
+        get_params: EchoParm

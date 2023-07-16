@@ -12,6 +12,17 @@ pub(crate) struct RouteConfig {
     pub(crate) method: hyper::Method,
     pub(crate) path: String,
     pub(crate) controller_name: String,
+    pub(crate) get_params: Option<String>,
+}
+impl Default for RouteConfig {
+    fn default() -> Self {
+        Self {
+            method: Default::default(),
+            path: Default::default(),
+            controller_name: Default::default(),
+            get_params: None,
+        }
+    }
 }
 
 impl Config {
@@ -32,6 +43,7 @@ paths:
         method: GET
         path: /path1
         controller_name: controller1
+        get_params: ParamVars
     -
         method: POST
         path: /path2
@@ -44,11 +56,13 @@ paths:
                     method: hyper::Method::GET,
                     path: "/path1".to_string(),
                     controller_name: "controller1".to_string(),
+                    get_params: Some("ParamVars".to_string()),
                 },
                 RouteConfig {
                     method: hyper::Method::POST,
                     path: "/path2".to_string(),
                     controller_name: "controller2".to_string(),
+                    get_params: None,
                 },
             ],
         };

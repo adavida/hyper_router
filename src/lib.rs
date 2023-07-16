@@ -22,7 +22,7 @@ fn generate_router_fn(paths_config: Vec<RouteConfig>) -> proc_macro2::TokenStrea
     let route_404 = route::make_route_404();
     let elements = paths_config.into_iter().map(|x| make_route(&x));
     quote::quote! {
-        async fn route(req: hyper::Request<hyper::Body>)-> Result<hyper::Response<hyper::Body>, hyper::Error>{
+        async fn route(req: hyper::Request<hyper::Body>)-> Result<hyper::Response<hyper::Body>, hyper::http::Error>{
             let path = req.uri().path().split('/').collect::<Vec<&str>>();
             match (req.method(), path.as_slice()) {
                 #(#elements)*
@@ -40,7 +40,7 @@ mod test {
     #[test]
     fn only_default_404() {
         let expeded = quote::quote! {
-            fn route(req: hyper::Request<hyper::Body>)-> Result<hyper::Response<hyper::Body>, hyper::Error>{
+            async fn route(req: hyper::Request<hyper::Body>)-> Result<hyper::Response<hyper::Body>, hyper::http::Error>{
                 let path = req.uri().path().split('/').collect::<Vec<&str>>();
                 match (req.method(), path.as_slice()) {
                     _ => {
@@ -58,14 +58,14 @@ mod test {
     #[test]
     fn with_root_path() {
         let expeded = quote::quote! {
-            fn route(req: hyper::Request<hyper::Body>)-> Result<hyper::Response<hyper::Body>, hyper::Error>{
+            async fn route(req: hyper::Request<hyper::Body>)-> Result<hyper::Response<hyper::Body>, hyper::http::Error>{
                 let path = req.uri().path().split('/').collect::<Vec<&str>>();
                 match (req.method(), path.as_slice()) {
-                    (&hyper::Method::GET, [] ) => {
+                    (&hyper::Method::GET, ["", ""] ) => {
                         let text: String = controller::route_controller();
                         Ok(hyper::Response::new(text.into()))
                     }
-                    (&hyper::Method::POST, ["post", "url", var, var2] ) => {
+                    (&hyper::Method::POST, ["", "post", "url", var, var2] ) => {
                         let text: String = controller::route_controller2(var, var2);
                         Ok(hyper::Response::new(text.into()))
                     }
@@ -82,11 +82,13 @@ mod test {
                 method: hyper::Method::GET,
                 path: "/".to_string(),
                 controller_name: "route_controller".to_string(),
+                ..Default::default()
             },
             RouteConfig {
                 method: hyper::Method::POST,
                 path: "/post/url/{var}/{var2}".to_string(),
                 controller_name: "route_controller2".to_string(),
+                ..Default::default()
             },
         ];
         let result = generate_router_fn(config);

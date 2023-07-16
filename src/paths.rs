@@ -69,6 +69,7 @@ mod test {
         assert_eq!(
             paths.map(|v| v.to_string()).collect::<Vec<String>>(),
             vec![
+                "\"\"".to_string(),
                 "\"main\"".to_string(),
                 "var1".to_string(),
                 "\"in\"".to_string(),
