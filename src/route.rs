@@ -10,15 +10,16 @@ pub(crate) fn make_route(config: &RouteConfig) -> TokenStream {
 
     let (vars, paths) = paths_extractor.get_data();
 
-    let binding_get_params = &config.get_params.clone().map(|str | {
+    let binding_get_params = if config.get_query_params {
         let name_var = to_token_tree("get_vars");
-        let type_var = to_token_tree(&str.as_ref());
         let quote = quote::quote! {
-            let get_vars: Result<controller::#type_var, String> =  serde_qs::from_str(req.uri().query().unwrap_or(""))
+            let get_vars: Result<_, String> =  serde_qs::from_str(req.uri().query().unwrap_or(""))
                 .map_err(|x| x.to_string());
         };
-        (name_var, quote)
-    });
+        Some((name_var, quote))
+    } else {
+        None
+    };
 
     let (name_vars, create_vars): (Vec<_>, Vec<_>) = vec![binding_get_params]
         .into_iter()

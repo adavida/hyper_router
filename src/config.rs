@@ -12,7 +12,7 @@ pub(crate) struct RouteConfig {
     pub(crate) method: hyper::Method,
     pub(crate) path: String,
     pub(crate) controller_name: String,
-    pub(crate) get_params: Option<String>,
+    pub(crate) get_query_params: bool,
 }
 impl Default for RouteConfig {
     fn default() -> Self {
@@ -20,7 +20,7 @@ impl Default for RouteConfig {
             method: Default::default(),
             path: Default::default(),
             controller_name: Default::default(),
-            get_params: None,
+            get_query_params: false,
         }
     }
 }
@@ -56,13 +56,13 @@ paths:
                     method: hyper::Method::GET,
                     path: "/path1".to_string(),
                     controller_name: "controller1".to_string(),
-                    get_params: Some("ParamVars".to_string()),
+                    get_query_params: true,
                 },
                 RouteConfig {
                     method: hyper::Method::POST,
                     path: "/path2".to_string(),
                     controller_name: "controller2".to_string(),
-                    get_params: None,
+                    get_query_params: false,
                 },
             ],
         };
