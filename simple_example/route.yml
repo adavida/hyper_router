@@ -3,12 +3,10 @@ paths:
         method: GET
         path: /
         controller_name: hello_world
-        get_query_params: false
     -
         method: POST
         path: /
         controller_name: hello_world
-        get_query_params: false
     -
         method: GET
         path: /{var}

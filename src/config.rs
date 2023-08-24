@@ -12,6 +12,7 @@ pub(crate) struct RouteConfig {
     pub(crate) method: hyper::Method,
     pub(crate) path: String,
     pub(crate) controller_name: String,
+    #[serde(default)]
     pub(crate) get_query_params: bool,
 }
 impl Default for RouteConfig {
