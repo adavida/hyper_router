@@ -8,7 +8,6 @@ edition = "2021"
 proc-macro = true
 
 [dependencies]
-hyper = { version = "0.14.26", features = ["full"] }
 hyper_serde = "0.13.0"
 proc-macro2 = "1.0.52"
 quote = "1.0.28"
@@ -19,4 +18,4 @@ serde_yaml = "0.9.21"
 hyper_wasi = "0.15.1"
 
 [target.x86_64-unknown-linux-gnu.dependencies]
-hyper = "0.14.26"
+hyper = { version = "0.14.27", features = ["full"] }

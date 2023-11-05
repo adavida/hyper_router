@@ -9,5 +9,5 @@ edition = "2021"
 hyper = { version = "0.14", features = ["full"] }
 tokio = { version = "1", features = ["full"] }
 hyper_router = { path = ".." }
-serde = { version = "1.0.163", features = ["derive"] }
+serde = { version = "1.0.190", features = ["derive"] }
 serde_qs = "0.12.0"
