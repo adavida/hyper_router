@@ -14,6 +14,8 @@ pub(crate) struct RouteConfig {
     pub(crate) controller_name: String,
     #[serde(default)]
     pub(crate) get_query_params: bool,
+    #[serde(default)]
+    pub(crate) get_post_data: bool,
 }
 impl Default for RouteConfig {
     fn default() -> Self {
@@ -22,6 +24,7 @@ impl Default for RouteConfig {
             path: Default::default(),
             controller_name: Default::default(),
             get_query_params: false,
+            get_post_data: false,
         }
     }
 }

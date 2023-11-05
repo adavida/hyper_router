@@ -10,7 +10,7 @@ pub(crate) fn make_route(config: &RouteConfig) -> TokenStream {
 
     let (vars, paths) = paths_extractor.get_data();
 
-    let binding_get_params = if config.get_query_params {
+    let binding_query_params = if config.get_query_params {
         let name_var = to_token_tree("get_vars");
         let quote = quote::quote! {
             let get_vars: Result<_, String> =  serde_qs::from_str(req.uri().query().unwrap_or(""))
@@ -21,7 +21,19 @@ pub(crate) fn make_route(config: &RouteConfig) -> TokenStream {
         None
     };
 
-    let (name_vars, create_vars): (Vec<_>, Vec<_>) = vec![binding_get_params]
+    let binding_post_data = if config.get_post_data {
+        let name_var = to_token_tree("get_body");
+        let quote = quote::quote! {
+            let body_bytes = hyper::body::to_bytes(req.into_body()).await.unwrap();
+            let body = std::str::from_utf8(&body_bytes).unwrap();
+            let get_body: Result<_, String> = serde_qs::from_str(body).map_err(|_| "".to_string());
+        };
+        Some((name_var, quote))
+    } else {
+        None
+    };
+
+    let (name_vars, create_vars): (Vec<_>, Vec<_>) = vec![binding_query_params, binding_post_data]
         .into_iter()
         .flatten()
         .map(|x| x.clone())

@@ -6,7 +6,8 @@ paths:
     -
         method: POST
         path: /
-        controller_name: hello_world
+        controller_name: echo_post_data
+        get_post_data: true
     -
         method: GET
         path: /{var}

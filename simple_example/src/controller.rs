@@ -18,3 +18,7 @@ pub fn hello_world() -> String {
 pub fn echo(entry: &str, pv: EchoParm) -> String {
     format!("{} ,  {:?}", entry, pv)
 }
+
+pub fn echo_post_data(pv: EchoParm) -> String {
+    format!("{:?}", pv)
+}
