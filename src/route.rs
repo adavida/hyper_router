@@ -36,7 +36,6 @@ pub(crate) fn make_route(config: &RouteConfig) -> TokenStream {
     let (name_vars, create_vars): (Vec<_>, Vec<_>) = vec![binding_query_params, binding_post_data]
         .into_iter()
         .flatten()
-        .map(|x| x.clone())
         .unzip();
 
     let vars = vars.chain(name_vars.clone().into_iter());

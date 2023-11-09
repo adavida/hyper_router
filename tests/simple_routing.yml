@@ -1,0 +1,18 @@
+paths:
+    -
+        method: GET
+        path: /
+        controller_name: get_root
+    -
+        method: GET
+        path: /var/{var}/{var2}
+        controller_name: get_root_two_var
+    -
+        method: GET
+        path: /{var}
+        controller_name: get_root_var
+    -
+        method: POST
+        path: /
+        controller_name: post_root
+        get_post_data: true
