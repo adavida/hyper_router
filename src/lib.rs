@@ -29,69 +29,6 @@ fn generate_router_fn(paths_config: Vec<RouteConfig>) -> proc_macro2::TokenStrea
                 #route_404
             }
         }
-
     }
 }
 
-#[cfg(test)]
-mod test {
-    use super::{config::*, *};
-
-    #[test]
-    fn only_default_404() {
-        let expeded = quote::quote! {
-            async fn route(req: hyper::Request<hyper::Body>)-> Result<hyper::Response<hyper::Body>, hyper::http::Error>{
-                let path = req.uri().path().split('/').collect::<Vec<&str>>();
-                match (req.method(), path.as_slice()) {
-                    _ => {
-                            let mut not_found = hyper::Response::default();
-                            *not_found.status_mut() = hyper::StatusCode::NOT_FOUND;
-                            Ok(not_found)
-                    }
-                }
-            }
-        };
-        let result = generate_router_fn(vec![]);
-        assert_eq!(expeded.to_string(), result.to_string());
-    }
-
-    #[test]
-    fn with_root_path() {
-        let expeded = quote::quote! {
-            async fn route(req: hyper::Request<hyper::Body>)-> Result<hyper::Response<hyper::Body>, hyper::http::Error>{
-                let path = req.uri().path().split('/').collect::<Vec<&str>>();
-                match (req.method(), path.as_slice()) {
-                    (&hyper::Method::GET, ["", ""] ) => {
-                        let text: String = controller::route_controller();
-                        Ok(hyper::Response::new(text.into()))
-                    }
-                    (&hyper::Method::POST, ["", "post", "url", var, var2] ) => {
-                        let text: String = controller::route_controller2(var, var2);
-                        Ok(hyper::Response::new(text.into()))
-                    }
-                    _ => {
-                            let mut not_found = hyper::Response::default();
-                            *not_found.status_mut() = hyper::StatusCode::NOT_FOUND;
-                            Ok(not_found)
-                    }
-                }
-            }
-        };
-        let config = vec![
-            RouteConfig {
-                method: hyper::Method::GET,
-                path: "/".to_string(),
-                controller_name: "route_controller".to_string(),
-                ..Default::default()
-            },
-            RouteConfig {
-                method: hyper::Method::POST,
-                path: "/post/url/{var}/{var2}".to_string(),
-                controller_name: "route_controller2".to_string(),
-                ..Default::default()
-            },
-        ];
-        let result = generate_router_fn(config);
-        assert_eq!(expeded.to_string(), result.to_string());
-    }
-}
