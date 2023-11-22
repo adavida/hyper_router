@@ -22,7 +22,13 @@ fn generate_router_fn(paths_config: Vec<RouteConfig>) -> proc_macro2::TokenStrea
     let route_404 = route::make_route_404();
     let elements = paths_config.into_iter().map(|x| make_route(&x));
     quote::quote! {
-        async fn route(req: hyper::Request<hyper::Body>)-> Result<hyper::Response<hyper::Body>, hyper::http::Error>{
+        async fn route<T>(
+            req: hyper::Request<T>
+        )-> Result<hyper::Response<http_body_util::Full<hyper::body::Bytes>>, hyper::http::Error>
+            where
+            T: hyper::body::Body + std::fmt::Debug,
+            <T as  hyper::body::Body>::Error: std::fmt::Debug
+            {
             let path = req.uri().path().split('/').collect::<Vec<&str>>();
             match (req.method(), path.as_slice()) {
                 #(#elements)*
@@ -31,4 +37,3 @@ fn generate_router_fn(paths_config: Vec<RouteConfig>) -> proc_macro2::TokenStrea
         }
     }
 }
-

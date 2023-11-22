@@ -24,9 +24,8 @@ pub(crate) fn make_route(config: &RouteConfig) -> TokenStream {
     let binding_post_data = if config.get_post_data {
         let name_var = to_token_tree("get_body");
         let quote = quote::quote! {
-            let body_bytes = hyper::body::to_bytes(req.into_body()).await.unwrap();
-            let body = std::str::from_utf8(&body_bytes).unwrap();
-            let get_body: Result<_, String> = serde_qs::from_str(body).map_err(|_| "".to_string());
+            let body = req.collect().await.unwrap().to_bytes();
+            let get_body: Result<_, String> = serde_qs::from_bytes(body.as_ref()).map_err(|_| "".to_string());
         };
         Some((name_var, quote))
     } else {
@@ -44,7 +43,7 @@ pub(crate) fn make_route(config: &RouteConfig) -> TokenStream {
 
     let ok_quote = quote::quote! {
         let text: String = controller::#controller_name(#(#vars),*);
-        Ok(hyper::Response::new(text.into()))
+        Ok(hyper::Response::new(http_body_util::Full::new(text.into())))
     };
     let inner_match = if name_vars.is_empty() {
         quote::quote! {

@@ -10,7 +10,7 @@ paths:
     -
         method: GET
         path: /{var}
-        controller_name: get_root_var
+        controller_name: get_root_var 
     -
         method: POST
         path: /

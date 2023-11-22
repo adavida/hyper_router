@@ -8,18 +8,20 @@ edition = "2021"
 proc-macro = true
 
 [dependencies]
-hyper_serde = "0.13.0"
-proc-macro2 = "1.0.52"
-quote = "1.0.28"
-serde = { version = "1.0.163", features = ["derive"] }
-serde_yaml = "0.9.21"
+proc-macro2 = "1.0.69"
+quote = "1.0.33"
+serde = { version = "1.0.192", features = ["derive"] }
+serde_yaml = "0.9.27"
+hyper = { version = "1.0", features = ["full"] }
 
-[target.wasm32-wasi.dependencies]
-hyper_wasi = "0.15.1"
+# [target.wasm32-wasi.dependencies]
+# hyper_wasi = "0.15.2"
 
-[target.x86_64-unknown-linux-gnu.dependencies]
-hyper = { version = "0.14.27", features = ["full"] }
+# [target.x86_64-unknown-linux-gnu.dependencies]
 
 [dev-dependencies]
 serde_qs = "0.12.0"
-tokio = { version = "1.33.0", features = ["full"] }
+tokio = { version = "1.34.0", features = ["full"] }
+hyper-util = { version = "0.1", features = ["full"] }
+http-body-util = "0.1"
+body = "0.1.1"

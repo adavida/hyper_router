@@ -1,4 +1,5 @@
-use serde::Deserialize;
+use serde::{de, Deserialize, Deserializer};
+use std::{fmt::Display, str::FromStr};
 
 #[derive(Deserialize, Debug, PartialEq, Eq)]
 pub(crate) struct Config {
@@ -8,7 +9,7 @@ pub(crate) struct Config {
 
 #[derive(Deserialize, Debug, PartialEq, Eq)]
 pub(crate) struct RouteConfig {
-    #[serde(deserialize_with = "hyper_serde::deserialize")]
+    #[serde(deserialize_with = "deserialize_from_str")]
     pub(crate) method: hyper::Method,
     pub(crate) path: String,
     pub(crate) controller_name: String,
@@ -17,6 +18,16 @@ pub(crate) struct RouteConfig {
     #[serde(default)]
     pub(crate) get_post_data: bool,
 }
+fn deserialize_from_str<'de, S, D>(deserializer: D) -> Result<S, D::Error>
+where
+    S: FromStr,
+    S::Err: Display,
+    D: Deserializer<'de>,
+{
+    let s: String = Deserialize::deserialize(deserializer)?;
+    S::from_str(&s).map_err(de::Error::custom)
+}
+
 impl Default for RouteConfig {
     fn default() -> Self {
         Self {
