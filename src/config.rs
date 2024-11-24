@@ -42,7 +42,7 @@ impl Default for RouteConfig {
 
 impl Config {
     pub(crate) fn from_yaml(entry: &str) -> Self {
-        serde_yaml::from_str(entry).unwrap()
+        serde_yml::from_str(entry).unwrap()
     }
 }
 
