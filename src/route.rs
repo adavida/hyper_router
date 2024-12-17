@@ -10,27 +10,9 @@ pub(crate) fn make_route(config: &RouteConfig) -> TokenStream {
 
     let (vars, paths) = paths_extractor.get_data();
 
-    let binding_query_params = if config.get_query_params {
-        let name_var = to_token_tree("get_vars");
-        let quote = quote::quote! {
-            let get_vars: Result<_, String> =  serde_qs::from_str(req.uri().query().unwrap_or(""))
-                .map_err(|x| x.to_string());
-        };
-        Some((name_var, quote))
-    } else {
-        None
-    };
+    let binding_query_params = get_query_params(config);
 
-    let binding_post_data = if config.get_post_data {
-        let name_var = to_token_tree("get_body");
-        let quote = quote::quote! {
-            let body = req.collect().await.unwrap().to_bytes();
-            let get_body: Result<_, String> = serde_qs::from_bytes(body.as_ref()).map_err(|_| "".to_string());
-        };
-        Some((name_var, quote))
-    } else {
-        None
-    };
+    let binding_post_data = get_post_data(config);
 
     let (name_vars, create_vars): (Vec<_>, Vec<_>) = vec![binding_query_params, binding_post_data]
         .into_iter()
@@ -72,6 +54,32 @@ pub(crate) fn make_route(config: &RouteConfig) -> TokenStream {
         (&hyper::Method::#method, [#(#paths), *]) => {
             #inner_match
         }
+    }
+}
+
+fn get_post_data(config: &RouteConfig) -> Option<(proc_macro2::TokenTree, proc_macro2::TokenStream)> {
+    if config.get_post_data {
+        let name_var = to_token_tree("get_body");
+        let quote = quote::quote! {
+            let body = req.collect().await.unwrap().to_bytes();
+            let get_body: Result<_, String> = serde_qs::from_bytes(body.as_ref()).map_err(|_| "".to_string());
+        };
+        Some((name_var, quote))
+    } else {
+        None
+    }
+}
+
+fn get_query_params(config: &RouteConfig) -> Option<(proc_macro2::TokenTree, proc_macro2::TokenStream)> {
+    if config.get_query_params {
+        let name_var = to_token_tree("get_vars");
+        let quote = quote::quote! {
+            let get_vars: Result<_, String> =  serde_qs::from_str(req.uri().query().unwrap_or(""))
+                .map_err(|x| x.to_string());
+        };
+        Some((name_var, quote))
+    } else {
+        None
     }
 }
 
